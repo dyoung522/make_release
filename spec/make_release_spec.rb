@@ -1,11 +1,14 @@
 require 'spec_helper'
 
-describe MakeRelease do
-  it 'has a version number' do
-    expect(MakeRelease::VERSION).not_to be nil
-  end
+module MakeRelease
+  describe MakeRelease do
+    it 'has a version number' do
+      expect(Globals::VERSION).not_to be nil
+    end
 
-  it 'does something useful' do
-    expect(false).to eq(true)
+    it 'responds to run!' do
+      expect(MakeRelease).to respond_to('run!')
+    end
   end
 end
+

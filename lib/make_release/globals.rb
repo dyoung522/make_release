@@ -1,0 +1,15 @@
+module MakeRelease
+  module Globals
+    require 'yaml'
+
+    VERSION       = '0.1.0'
+    IDENT         = 'make_release'
+    AUTHOR        = 'Donovan C. Young'
+    AEMAIL        = 'dyoung522@gmail.com'
+    SUMMARY       = %q{Creates a release candidate}
+    DESCRIPTION   = %q{Merges a list of JIRA stories from multiple branches into a release candidate}
+    HOMEPAGE      = "https://github.com/dyoung522/#{IDENT}"
+    LICENSE       = 'MIT'
+    VSTRING       = "#{IDENT} v.#{VERSION} - #{AUTHOR}, 2015"
+  end
+end
