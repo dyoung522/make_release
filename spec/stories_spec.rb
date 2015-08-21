@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'make_release/stories'
+require 'make_release/git'
 
 module MakeRelease
 
@@ -40,10 +41,10 @@ module MakeRelease
       end
     end
 
-    context '#add' do
+    context '#add_story' do
       it 'adds a Story' do
         expect(stories.stories[:test]).to be_nil
-        stories.add(:test, story)
+        stories.add_story(:test, story)
         expect(stories.stories[:test]).to eq([story])
       end
     end
@@ -101,8 +102,9 @@ module MakeRelease
         stories.stories['master'] = []
 
         expect(stories).to respond_to(:diff)
-        expect(stories.diff).to be_kind_of(Array)
-        expect(stories.diff.count).to eq(3)
+        expect(stories.diff).to be_kind_of(Stories)
+        expect(stories.diff.branches).to eq(['master', 'diff'])
+        expect(stories.diff.stories['diff'].count).to eq(3)
       end
 
     end

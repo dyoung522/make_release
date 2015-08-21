@@ -1,19 +1,34 @@
 require 'make_release/story'
-require 'open3'
+require 'make_release/git'
 
 module MakeRelease
   class Stories
 
     def initialize( opts = Options.defaults )
-      @stories   = {}
-      @directory = opts.directory || '.'
+      @options   = opts
+      @stories   = opts[:stories]   || {}
+      @directory = opts[:directory] || '.'
       @branches  = _get_branches(opts[:master], opts[:source])
 
-      get_stories
+      get_stories if @stories == {}
     end
+
     attr_accessor :branches, :directory
     attr_reader :stories
     alias dir directory
+
+    def each
+      @stories.values.each do |stories|
+        stories.each { |story| yield story }
+      end
+    end
+
+    def to_s
+      @stories.each do |branch, stories|
+        puts "#{branch.capitalize} -->"
+        stories.each { |s| puts s.to_s }
+      end
+    end
 
     def source
       @branches[1, @branches.size]
@@ -45,7 +60,7 @@ module MakeRelease
       story_index.values
     end
 
-    def add( branch, story )
+    def add_story( branch, story )
       (@stories[branch] ||= []).push story
     end
 
@@ -57,12 +72,15 @@ module MakeRelease
 
     def diff
       stories = []
+      opts = @options
 
       source_stories.each do |story|
         stories << story unless find(master, story.sha)
       end
 
-      stories.flatten
+      opts.source = ['diff']
+      opts.stories = {'diff' => stories.flatten}
+      Stories.new opts
     end
 
     private
@@ -75,12 +93,8 @@ module MakeRelease
 
     def get_stories(branches = @branches)
       branches.to_a.each do |branch|
-        cmd = "git log --oneline --no-merges --pretty='%h|%s' #{branch}"
-        Open3.popen3(cmd, chdir: @directory) do |i,o,e,t|
-          if t.value != 0
-            raise RuntimeError, "Unable to obtain gitlog for #{branch} in #{dir}"
-          end
-          o.read.split("\n").each { |line| add branch, Story.new(line) }
+        Git.log(@directory, branch).each do |line|
+          add_story branch, Story.new(line)
         end
       end
     end

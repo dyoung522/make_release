@@ -3,28 +3,54 @@ require 'make_release/options'
 require 'make_release/stories'
 
 module MakeRelease
+  def self.not_implemented( feature )
+    puts "Sorry, #{feature} has not yet been implemented"
+    exit 2
+  end
+
   def self.run!
     begin
-      options = Options.parse ARGV
+      opts = Options.parse ARGV
     rescue => error
       puts error
       exit 1
     end
 
-    puts options.inspect if options.debug
+    puts opts.inspect if opts.debug
 
-    stories = Stories.new(options)
+    stories = Stories.new(opts)
 
-    puts stories.inspect if options.debug
+    puts stories.inspect if opts.debug
 
-    if options.diff
-      puts "From #{stories.directory} branches #{stories.source.join(', ')}"
-      puts "All Stories which are not in #{stories.master}..."
+    if opts.diff
 
-      stories.diff.each do |story|
-        puts "%-120.120s" % [story.to_s]
+      if opts.verbose
+        puts "From #{stories.directory}"
+        puts "-> All stories from #{stories.source.join(', ')}"
+        puts "-> Which are not in #{stories.master}"
+        stories.diff.each do |story|
+          puts "%-120.120s" % story.to_s
+        end
+      else
+        puts stories.diff.shas
       end
+
+    else
+
+      if opts.verbose
+        puts "All stories from #{stories.directory}"
+        stories.branches.each do |branch|
+          puts "\n#{branch.capitalize}\n\n"
+          stories.stories[branch].each do |story|
+            puts "%-120.120s" % story.to_s
+          end
+        end
+      else
+        not_implemented('--silent')
+      end
+
     end
 
   end
 end
+

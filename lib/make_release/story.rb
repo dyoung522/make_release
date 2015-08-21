@@ -16,7 +16,7 @@ module MakeRelease
       raise RuntimeError 'description cannot be blank' unless description
 
       stories = []
-      story_pattern = /\[?((SRMPRT|OSMCLOUD)\-\d+)\]?[,:\-\s]+\s*(.*)$/
+      story_pattern = /\[?(((SRMPRT|OSMCLOUD)\-\d+)|NO-JIRA)\]?[,:\-\s]+\s*(.*)$/
       line = description.match(story_pattern)
 
       if line.nil? # did not find a JIRA ticket pattern
@@ -24,7 +24,7 @@ module MakeRelease
         desc = description.strip
       else
         stories.push line.captures[0]
-        desc = line.captures[2].strip
+        desc = line.captures[3].strip
       end
 
       # Perform recursion if there are multiple tickets in the description
@@ -46,7 +46,7 @@ module MakeRelease
     end
 
     def to_s
-      '[%s] %s - %s' % [sha, tickets.join(', '), desc]
+      '[%07.07s] %s - %s' % [sha, tickets.join(', '), desc]
     end
 
   end

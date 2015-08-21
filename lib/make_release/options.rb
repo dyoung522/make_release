@@ -13,7 +13,8 @@ module MakeRelease
         diff:      false,
         dryrun:    false,
         verbose:   true,
-        debug:     false
+        debug:     false,
+        stories:   nil
       }
     end
 
@@ -74,9 +75,9 @@ module MakeRelease
     end
 
     def self.validate_options(opts)
-      raise OptionParser::MissingArgument, 'A release version (-r) is required' if opts.release.nil?
+      # raise OptionParser::MissingArgument, 'A release version (-r) is required' if opts.release.nil?
 
-      if opts.release !~ /^v?(\d+\.)?(\d+\.)?(\*|\d+)/
+      if opts.release && opts.release !~ /^v?(\d+\.)?(\d+\.)?(\*|\d+)/
         raise RuntimeError, 'Release version must follow semantic versioning'
       end
 
