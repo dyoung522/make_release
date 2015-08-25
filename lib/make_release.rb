@@ -18,7 +18,12 @@ module MakeRelease
 
     puts opts.inspect if opts.debug
 
-    stories = Stories.new(opts)
+    begin
+      stories = Stories.new(opts)
+    rescue RuntimeError => error
+      puts error
+      exit 1
+    end
 
     puts stories.inspect if opts.debug
 

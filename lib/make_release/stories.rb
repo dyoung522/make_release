@@ -92,8 +92,10 @@ module MakeRelease
     end
 
     def get_stories(branches = @branches)
+      git = Git.new(@directory)
+
       branches.to_a.each do |branch|
-        Git.log(@directory, branch).each do |line|
+        git.log(branch).each do |line|
           add_story branch, Story.new(line)
         end
       end
