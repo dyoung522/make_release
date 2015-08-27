@@ -8,25 +8,23 @@ module MakeRelease
     let(:sha) { 'a1b2c3e' }
     let(:jira) { 'SRMPRT-12345' }
     let(:desc) { 'this is a description from stories' }
-    let(:gitlog_output) { "#{sha}|[#{jira}] #{desc}" }
     let(:story) { double Story }
     let(:stories) { Stories.new }
 
     def mock_gitlog(*output)
-      output = [gitlog_output] if output.empty?
-      allow(Open3).to receive(:popen3)
-                        .with(/log/, any_args)
-                        .and_return(output)
+      output = ["#{sha}|[#{jira}] #{desc}"] if output.empty?
+      allow(Open3).to receive(:popen3).with(/log/, any_args).and_return(output)
     end
 
     before(:each) do
       mock_gitlog
-      allow(Open3).to receive(:popen3).with(/branch/, any_args).and_return(['master', 'develop'])
+      mock_branch('master')
+      mock_branch('develop')
     end
 
     it 'produces a valid object with defaults' do
       expect(stories).to respond_to(:branches)
-      expect(stories.branches).to eq(['master', 'develop'])
+      expect(stories.branches).to eq(%w(master develop))
 
       expect(stories).to respond_to(:directory)
       expect(stories).to respond_to(:dir) # alias
@@ -55,16 +53,16 @@ module MakeRelease
 
     context '#shas' do
       it 'should combine the shas from all source branches into a single list' do
-        mock_gitlog gitlog_output, '45678|blah', '65432|blah2'
+        mock_gitlog '12345|blah', '45678|blah', '65432|blah2'
 
         expect(stories).to respond_to(:shas)
-        expect(stories.shas).to eq([sha, '45678', '65432'])
+        expect(stories.shas).to eq(%w(12345 45678 65432))
       end
     end
 
     context '#source_stories' do
       it 'should return a combined list of stories from all source branches' do
-        mock_gitlog gitlog_output, '45678|SRMPRT-456 blah', 'n65432|SRMPRT-789 blah2'
+        mock_gitlog '12345|OSMCLOUD-123 foo', '45678|SRMPRT-456 blah', 'n65432|SRMPRT-789 blah2'
 
         expect(stories).to respond_to(:source_stories)
         expect(stories.source_stories).to be_kind_of(Array)
@@ -88,13 +86,13 @@ module MakeRelease
 
     context '#diff' do
       it 'returns a list of stories not in the master branch' do
-        mock_gitlog gitlog_output, '45678|SRMPRT-456 blah', '65432|SRMPRT-789 blah2'
+        mock_gitlog '12345|OSMCLOUD-123 foo', '45678|SRMPRT-456 blah', '65432|SRMPRT-789 blah2'
 
         stories.stories['master'] = []
 
         expect(stories).to respond_to(:diff)
-        expect(stories.diff).to be_kind_of(Stories)
-        expect(stories.diff.branches).to eq(['master', 'diff'])
+        expect(stories.diff).to be_instance_of(Stories)
+        expect(stories.diff.branches).to eq(%w(master diff))
         expect(stories.diff.stories['diff'].count).to eq(3)
       end
 

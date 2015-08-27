@@ -11,12 +11,41 @@ module MakeRelease
 
     before(:each) do
       allow(Open3).to receive(:popen3).with(/log/, any_args).and_return([gitlog_output])
-      allow(Open3).to receive(:popen3).with(/branch/, any_args).and_return(['master'])
+      mock_branch('master')
+      mock_branch('develop')
+    end
+
+    context '#new' do
+      it 'should raise an error if the directory is not valid' do
+        expect { Git.new('foo') }.to raise_error(StandardError)
+      end
+
+      it 'should raise an error if the directory is not a Git repo' do
+        Dir.mktmpdir('spec-test-') do |dir|
+          expect { Git.new(dir) }.to raise_error(RuntimeError)
+        end
+      end
+
+      it 'should be valid' do
+        expect(Git.new).to be_instance_of(Git)
+      end
+    end
+
+    context '#branch_valid?' do
+      it 'returns true for a valid branch' do
+        expect(git.branch_valid?('master')).to be_truthy
+      end
+
+      it 'returns false for an invalid branch' do
+        mock_branch(nil)
+        expect(git.branch_valid?('foo')).to be_falsey
+      end
     end
 
     context '#log' do
       it 'raises an error with an invalid branch' do
-        expect{ git.log('foo') }.to raise_error(RuntimeError)
+        mock_branch(nil)
+        expect { git.log('foo') }.to raise_error(RuntimeError)
       end
 
       it 'returns log output with a valid branch' do
