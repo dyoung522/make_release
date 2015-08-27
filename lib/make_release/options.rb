@@ -26,7 +26,7 @@ module MakeRelease
       options = self.defaults
 
       opt_parser = OptionParser.new do |opts|
-        opts.banner = "Usage: #{Globals::IDENT} [options]"
+        opts.banner = "Usage: #{Globals::BINIDENT} [options]"
         opts.separator ''
         opts.separator 'Common Options:'
 

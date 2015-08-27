@@ -2,8 +2,9 @@ module MakeRelease
   module Globals
     require 'yaml'
 
-    VERSION       = '0.1.0'
+    VERSION       = '0.1.1'
     IDENT         = 'make_release'
+    BINIDENT      = 'mkrelease'
     AUTHOR        = 'Donovan C. Young'
     AEMAIL        = 'dyoung522@gmail.com'
     SUMMARY       = %q{Creates a release candidate}
