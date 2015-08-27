@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
   spec.summary       = MakeRelease::Globals::SUMMARY
   spec.description   = MakeRelease::Globals::DESCRIPTION
   spec.homepage      = MakeRelease::Globals::HOMEPAGE
+  spec.license       = MakeRelease::Globals::LICENSE
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = 'bin'
