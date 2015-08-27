@@ -10,18 +10,14 @@ module MakeRelease
     end
 
     def log(branch)
-      check_branch(branch)
+      raise RuntimeError, "Invalid branch: #{branch}" unless branch_valid? branch
       run_command("git log --no-merges --pretty='%H|%s' #{branch}")
     end
 
     private
 
-    def check_branch(branch)
-      rv = false
-
-      run_command('git branch').each { |b| rv = true if b =~ /#{branch}/ }
-
-      raise RuntimeError, "Invalid branch: #{branch}" unless rv
+    def branch_valid?(branch)
+      run_command("git branch --list #{branch}").include?(branch)
     end
 
     def run_command(cmd)

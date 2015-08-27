@@ -4,13 +4,13 @@ require 'make_release/git'
 module MakeRelease
   class Stories
 
-    def initialize( opts = Options.defaults )
-      @options   = opts
-      @stories   = opts[:stories]   || {}
+    def initialize(opts = Options.defaults)
+      @options = opts
+      @stories = opts[:stories] || {}
       @directory = opts[:directory] || '.'
-      @branches  = _get_branches(opts[:master], opts[:source])
+      @branches = _get_branches(opts[:master], opts[:source])
 
-      get_stories if @stories == {}
+      _get_stories if @stories == {}
     end
 
     attr_accessor :branches, :directory
@@ -41,7 +41,7 @@ module MakeRelease
     def master=(new_master)
       @stories[master] = []
       @branches[0] = new_master
-      get_stories(new_master)
+      _get_stories(new_master)
     end
 
     def shas
@@ -60,13 +60,15 @@ module MakeRelease
       story_index.values
     end
 
-    def add_story( branch, story )
+    def add_story(branch, story)
       (@stories[branch] ||= []).push story
     end
 
-    def find( branch, sha )
+    def find(branch, sha)
       raise ArgumentError, "Invalid environment #{branch}" unless @branches.include?(branch)
+
       @stories[branch].each { |story| return true if story.sha == sha }
+
       false
     end
 
@@ -91,7 +93,7 @@ module MakeRelease
       branches.flatten
     end
 
-    def get_stories(branches = @branches)
+    def _get_stories(branches = @branches)
       git = Git.new(@directory)
 
       branches.to_a.each do |branch|

@@ -18,6 +18,10 @@ module MakeRelease
 
     puts opts.inspect if opts.debug
 
+    if !Dir.exist?(File.join(opts.directory, '.git'))
+      puts "There is no git initialized in #{opts.directory}"
+    end
+
     begin
       stories = Stories.new(opts)
     rescue RuntimeError => error
