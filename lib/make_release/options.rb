@@ -35,7 +35,7 @@ module MakeRelease
           if Dir.exist?(dir)
             options.directory = dir
           else
-            puts "Whoops: '#{dir}' is not a valid directory."
+            puts "Oops: '#{dir}' is not a valid directory."
             exit 2
           end
         end
@@ -64,7 +64,7 @@ module MakeRelease
 
         opts.on('-h', '--help', 'Show this message') { puts Globals::VSTRING + "\n\n"; puts opts;  exit 255; }
         opts.on('-V', '--version', 'Show version (and exit)') { puts Globals::VSTRING;  exit 255; }
-        opts.on('--diff', "Display a list of stories from all sources which haven't been merged into master") { options.diff = true }
+        opts.on('-D', '--diff', "Display a list of stories from all sources which haven't been merged into master") { options.diff = true }
         opts.on('--dryrun', %q{Don't actually modify any files, just show what would happen}) { options.dryrun = true }
         opts.on('--debug', 'Run with debugging options (use with caution)') { options.debug = true }
       end

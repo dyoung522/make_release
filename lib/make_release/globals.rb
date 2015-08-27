@@ -11,6 +11,6 @@ module MakeRelease
     DESCRIPTION   = %q{Merges a list of JIRA stories from multiple branches into a release candidate}
     HOMEPAGE      = "https://github.com/dyoung522/#{IDENT}"
     LICENSE       = 'MIT'
-    VSTRING       = "#{IDENT} v.#{VERSION} - #{AUTHOR}, 2015"
+    VSTRING       = "#{BINIDENT} v.#{VERSION} - #{AUTHOR}, 2015"
   end
 end
