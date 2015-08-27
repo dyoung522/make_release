@@ -56,7 +56,7 @@ module MakeRelease
         mock_gitlog '12345|blah', '45678|blah', '65432|blah2'
 
         expect(stories).to respond_to(:shas)
-        expect(stories.shas).to eq(%w(12345 45678 65432))
+        expect(stories.shas).to eq(%w(12345 45678 65432).reverse) # Array should be reversed
       end
     end
 

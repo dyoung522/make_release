@@ -23,13 +23,6 @@ module MakeRelease
       end
     end
 
-    def to_s
-      @stories.each do |branch, stories|
-        puts "#{branch.capitalize} -->"
-        stories.each { |s| puts s.to_s }
-      end
-    end
-
     def source
       @branches[1, @branches.size]
     end
@@ -47,7 +40,7 @@ module MakeRelease
     def shas
       source.map do |branch|
         stories[branch].map { |s| s.sha }
-      end.flatten
+      end.flatten.reverse
     end
 
     def source_stories
