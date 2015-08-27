@@ -6,24 +6,25 @@ module MakeRelease
 
     def self.default_options
       {
-        debug: false,
-        diff: false,
+        debug:     false,
+        diff:      false,
         directory: '.',
-        dryrun: false,
-        includes: nil,
+        dryrun:    false,
+        includes:  nil,
         master:    'master',
         release:   nil,
-        source: [],
-        stories: nil,
-        verbose: true
+        source:    [],
+        tag:       nil,
+        stories:   nil,
+        verbose:   true
       }
     end
 
     def self.defaults
-      Struct.new( *Options.default_options.keys ).new( *Options.default_options.values )
+      Struct.new(*Options.default_options.keys).new(*Options.default_options.values)
     end
 
-    def self.parse( argv_opts = [] )
+    def self.parse(argv_opts = [])
       options = self.defaults
 
       opt_parser = OptionParser.new do |opts|
@@ -45,13 +46,15 @@ module MakeRelease
           options.includes = file
         end
 
-        opts.on('-m', '--master BRANCH', 'Specify a master branch (default: master)') { |o| options.master = o }
-        opts.on('-r', '--release-version VER', 'Specify the release version (REQUIRED)') { |o| options.release = o }
+        opts.on('-m', '--master BRANCH', 'Specify a master branch (default: master)') { |m| options.master = m }
+        opts.on('-r', '--release VER', 'Specify a release version') { |r| options.release = r }
 
         opts.on('-s', '--source BRANCH',
-                'Use BRANCH as our starting branch to compare against (may be used more than once)') do |branch|
+                'Use BRANCH as the source to compare against (may be used more than once)') do |branch|
           options.source << branch unless options.source.include?(branch)
         end
+
+        opts.on('-t', '--tag TAG', 'Use TAG on release') { |t| options.tag = t }
 
         opts.separator ''
         opts.separator 'Additional Options:'
@@ -62,8 +65,8 @@ module MakeRelease
         opts.separator ''
         opts.separator 'Informational:'
 
-        opts.on('-h', '--help', 'Show this message') { puts Globals::VSTRING + "\n\n"; puts opts;  exit 255; }
-        opts.on('-V', '--version', 'Show version (and exit)') { puts Globals::VSTRING;  exit 255; }
+        opts.on('-h', '--help', 'Show this message') { puts Globals::VSTRING + "\n\n"; puts opts; exit 255; }
+        opts.on('-V', '--version', 'Show version (and exit)') { puts Globals::VSTRING; exit 255; }
         opts.on('-D', '--diff', "Display a list of stories from all sources which haven't been merged into master") { options.diff = true }
         opts.on('--dryrun', %q{Don't actually modify any files, just show what would happen}) { options.dryrun = true }
         opts.on('--debug', 'Run with debugging options (use with caution)') { options.debug = true }
@@ -75,8 +78,6 @@ module MakeRelease
     end
 
     def self.validate_options(opts)
-      # raise OptionParser::MissingArgument, 'A release version (-r) is required' if opts.release.nil?
-
       if opts.release && opts.release !~ /^v?(\d+\.)?(\d+\.)?(\*|\d+)/
         raise RuntimeError, 'Release version must follow semantic versioning'
       end
