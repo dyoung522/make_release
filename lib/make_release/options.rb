@@ -6,15 +6,16 @@ module MakeRelease
 
     def self.default_options
       {
+        debug: false,
+        diff: false,
         directory: '.',
+        dryrun: false,
+        includes: nil,
         master:    'master',
-        source:    [],
         release:   nil,
-        diff:      false,
-        dryrun:    false,
-        verbose:   true,
-        debug:     false,
-        stories:   nil
+        source: [],
+        stories: nil,
+        verbose: true
       }
     end
 
@@ -35,17 +36,17 @@ module MakeRelease
           if Dir.exist?(dir)
             options.directory = dir
           else
-            raise RuntimeError, "ENOEXIST: Directory does not exist -> #{dir}"
+            raise ArgumentError, "ENOEXIST: Directory does not exist -> #{dir}"
           end
         end
 
-        opts.on('-m', '--master BRANCH', 'Specify a master branch (default: master)') do |master|
-          options.master = master
+        opts.on('-i', '--includes FILE', 'The file container JIRA stories to include, one per line') do |file|
+          raise ArgumentError, "ENOEXIST: '#{file}' is not a valid file" unless file && File.exist?(file)
+          options.includes = file
         end
 
-        opts.on('-r', '--release-version VER', 'Specify the release version (REQUIRED)') do |rver|
-          options.release = rver
-        end
+        opts.on('-m', '--master BRANCH', 'Specify a master branch (default: master)') { |o| options.master = o }
+        opts.on('-r', '--release-version VER', 'Specify the release version (REQUIRED)') { |o| options.release = o }
 
         opts.on('-s', '--source BRANCH',
                 'Use BRANCH as our starting branch to compare against (may be used more than once)') do |branch|

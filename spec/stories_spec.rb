@@ -16,30 +16,63 @@ module MakeRelease
       allow(Open3).to receive(:popen3).with(/log/, any_args).and_return(output)
     end
 
+    def mock_includes(input)
+      file = instance_double File
+
+      allow(File).to receive(:open).and_yield(file)
+      allow(File).to receive(:exist?).and_return(true)
+
+      expectation = expect(file).to receive(:each_line)
+      input.split("\n").each { |line| expectation.and_yield(line) }
+
+      stories.includes = 'myfile'
+    end
+
     before(:each) do
       mock_gitlog
       mock_branch('master')
       mock_branch('develop')
     end
 
-    it 'produces a valid object with defaults' do
-      expect(stories).to respond_to(:branches)
-      expect(stories.branches).to eq(%w(master develop))
-
+    it 'should have a directory' do
       expect(stories).to respond_to(:directory)
       expect(stories).to respond_to(:dir) # alias
       expect(stories.directory).to eq('.')
     end
 
-    context '#add_story' do
-      it 'adds a Story' do
-        expect(stories.stories[:test]).to be_nil
-        stories.add_story(:test, story)
-        expect(stories.stories[:test]).to eq([story])
+    context 'Includes' do
+      it 'should respond to #includes' do
+        expect(stories).to respond_to(:includes)
+        expect(stories.includes).to be_kind_of(Array)
+      end
+
+      context '#includes=' do
+        it 'should read in a list of JIRA stories' do
+          mock_includes "SRMPRT-12345\nOSMCLOUD-45678"
+          expect(stories.includes).to eq(%w(SRMPRT-12345 OSMCLOUD-45678))
+        end
+
+        it 'should ignore invalid content' do
+          mock_includes "SRMPRT-12345\n789\nOSMCLOUD-45678"
+          expect(stories.includes).to eq(%w(SRMPRT-12345 OSMCLOUD-45678))
+        end
+      end
+
+      context '#add_include' do
+        it 'should contain a list of stories' do
+          expect(stories).to respond_to(:add_include)
+          stories.add_include(jira)
+          expect(stories.includes).to include(jira)
+        end
       end
     end
 
     context 'Branches' do
+      it 'should have #branches' do
+        expect(stories).to respond_to(:branches)
+        expect(stories.branches).to eq(%w(master develop))
+      end
+
       it 'should return the master branch' do
         expect(stories).to respond_to(:master)
         expect(stories.master).to eq('master')
@@ -48,6 +81,14 @@ module MakeRelease
       it 'should return the source branch(es)' do
         expect(stories).to respond_to(:source)
         expect(stories.source).to eq(['develop'])
+      end
+    end
+
+    context '#add_story' do
+      it 'adds a Story' do
+        expect(stories.stories[:test]).to be_nil
+        stories.add_story(:test, story)
+        expect(stories.stories[:test]).to eq([story])
       end
     end
 

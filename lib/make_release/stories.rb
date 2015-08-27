@@ -5,16 +5,18 @@ module MakeRelease
   class Stories
 
     def initialize(opts = Options.defaults)
+      @branches = _get_branches(opts[:master], opts[:source])
+      @directory = opts[:directory] || '.'
+      @includes = _get_includes(opts.includes)
       @options = opts
       @stories = opts[:stories] || {}
-      @directory = opts[:directory] || '.'
-      @branches = _get_branches(opts[:master], opts[:source])
 
       _get_stories if @stories == {}
     end
 
     attr_accessor :branches, :directory
-    attr_reader :stories
+    attr_reader :stories, :includes
+
     alias dir directory
 
     def each
@@ -25,6 +27,14 @@ module MakeRelease
 
     def source
       @branches[1, @branches.size]
+    end
+
+    def add_include(story)
+      @includes << story
+    end
+
+    def includes=(file)
+      @includes = _get_includes(file)
     end
 
     def master
@@ -84,6 +94,16 @@ module MakeRelease
       branches = [] << (master.nil? ? 'master' : master)
       branches << (sources.empty? ? ['develop'] : sources)
       branches.flatten
+    end
+
+    def _get_includes(includes_file)
+      lines = []
+      if includes_file && File.exist?(includes_file)
+        File.open(includes_file, 'r') do |f|
+          f.each_line { |line| lines << $1 if line =~ /(\w+\-\d+)/ }
+        end
+      end
+      lines
     end
 
     def _get_stories(branches = @branches)
