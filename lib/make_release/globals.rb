@@ -2,7 +2,7 @@ module MakeRelease
   module Globals
     require 'yaml'
 
-    VERSION       = '0.1.1'
+    VERSION       = '0.2.0'
     IDENT         = 'make_release'
     BINIDENT      = 'mkrelease'
     AUTHOR        = 'Donovan C. Young'
