@@ -4,7 +4,8 @@ module MakeRelease
   class Git
 
     def initialize(dir = '.')
-      raise StandardError, "directory #{dir} is not valid" unless Dir.exist?(dir)
+      raise StandardError, "Directory '#{dir}' is not valid" unless Dir.exist?(dir)
+      raise RuntimeError, "Doesn't look like '#{dir}' is a Git repository" unless Dir.exist?(File.join(dir, '.git'))
 
       @working_dir = dir
     end

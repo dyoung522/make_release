@@ -35,8 +35,7 @@ module MakeRelease
           if Dir.exist?(dir)
             options.directory = dir
           else
-            puts "Oops: '#{dir}' is not a valid directory."
-            exit 2
+            raise RuntimeError, "ENOEXIST: Directory does not exist -> #{dir}"
           end
         end
 
