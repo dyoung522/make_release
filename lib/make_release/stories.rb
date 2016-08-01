@@ -110,6 +110,7 @@ module MakeRelease
       git = Git.new(@directory)
 
       branches.to_a.each do |branch|
+        puts "checking #{branch}" if @options.debug
         git.log(branch).each do |line|
           add_story branch, Story.new(line)
         end

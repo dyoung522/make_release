@@ -12,18 +12,17 @@ module MakeRelease
 
     def log(branch)
       raise RuntimeError, "Invalid branch: #{branch}" unless branch_valid? branch
-      run_command("git log --no-merges --pretty='%H|%s' #{branch}")
+      run_command("\\git --no-pager log --no-merges --pretty='%H|%s' #{branch}")
     end
 
     def branch_valid?(branch)
-      run_command("git branch --list #{branch}")[0] =~ /#{branch}/
+      run_command("\\git branch --list #{branch}")[0] =~ /#{branch}/
     end
 
     private
 
     def run_command(cmd)
       Open3.popen3(cmd, chdir: @working_dir) do |i, o, e, t|
-        raise RuntimeError, "Error on command: #{cmd}" if t.value != 0
         o.read.split("\n")
       end
     end

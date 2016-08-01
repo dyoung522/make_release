@@ -19,13 +19,12 @@ module MakeRelease
     puts opts.inspect if opts.debug
 
     begin
+      puts 'Searching for stories...' if opts.verbose
       stories = Stories.new(opts)
     rescue RuntimeError => error
       puts error
       exit 1
     end
-
-    puts stories.inspect if opts.debug
 
     if opts.diff
 
